@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build --config apps/aegis/vite.config.ts",
+    "verify": "npm test && npm run build",
     "asset:character": "blender --background --python tools/blender/create-aegis-character.py --"
   },
   "dependencies": {
