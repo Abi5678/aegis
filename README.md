@@ -6,6 +6,10 @@ Aegis is a Developer Tools hackathon project that attacks a deliberately vulnera
 
 The vertical slice proves a specific claim: an agent can discover a failure outside its seed suite, diagnose it, mutate bounded prompts/code, survive protected attacks it never saw during repair, and preserve that vulnerability as a permanent regression.
 
+**[Launch the credential-free public replay](https://aegis-agent-immunity.fsaguilar16.chatgpt.site)** · [Read the evidence provenance](docs/EVIDENCE_PROVENANCE.md) · [Review the submission checklist](docs/SUBMISSION_CHECKLIST.md)
+
+![Aegis showing the original exploit blocked after human-approved reference immunity](docs/screenshots/blocked-exploit.png)
+
 ## 60-second quickstart
 
 Requirements: Node 25+, npm, and Git.
@@ -29,6 +33,16 @@ Open [http://localhost:3000](http://localhost:3000), select **90-sec replay**, a
 | Recommended use | Public demo and repeatable judging | Captured technical proof in a controlled environment |
 
 Replay never claims that its displayed SHAs are live commits, and live mode never silently falls back to replay.
+
+## Judge screenshots
+
+| Infection | Candidate tournament |
+| --- | --- |
+| ![Aegis canonical split-refund infection evidence](docs/screenshots/infection.png) | ![Aegis three-candidate repair tournament](docs/screenshots/tournament.png) |
+
+| Human gate | Blocked re-attack |
+| --- | --- |
+| ![Aegis reference Immunity PR approval gate](docs/screenshots/immunity-pr.png) | ![Aegis before-and-after proof that the exploit is blocked](docs/screenshots/blocked-exploit.png) |
 
 ## What the demonstration proves
 

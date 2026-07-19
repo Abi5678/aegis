@@ -23,9 +23,9 @@ Submission deadline: **July 21, 2026**. Treat every unchecked item as a release 
 
 ## Judge experience
 
-- [ ] Public replay URL works in a private/incognito browser window.
-- [ ] Public deployment exposes replay only and contains no live credentials.
-- [ ] Infection, tournament, Immunity PR, and blocked re-attack screenshots are captured.
+- [x] Public replay URL works without credentials: https://aegis-agent-immunity.fsaguilar16.chatgpt.site
+- [x] Public deployment exposes replay only and contains no live credentials.
+- [x] Infection, tournament, Immunity PR, and blocked re-attack screenshots are captured.
 - [ ] Three-minute video follows the canonical path and finishes under the limit.
 - [ ] Video explicitly distinguishes replay evidence from captured live evidence.
 - [ ] Product can be understood with sound off; captions or readable callouts are present.
@@ -33,12 +33,12 @@ Submission deadline: **July 21, 2026**. Treat every unchecked item as a release 
 ## Submission materials
 
 - [ ] Devpost project description states the problem, solution, approach, impact, and limitations.
-- [ ] Repository URL, public demo URL, and video URL are final and accessible.
+- [ ] Repository and public demo URLs are final; video URL is still required.
 - [ ] Both teammates are registered and credited correctly.
 - [ ] Required track/category selections are confirmed against the current Devpost form.
 - [ ] Any `/feedback` requirement shown by Devpost is completed and verified.
 - [ ] Project license is selected intentionally by the repository owner.
-- [ ] README includes CI status, quickstart, evidence-mode distinctions, and team credit.
+- [x] README includes CI status, quickstart, evidence-mode distinctions, screenshots, public replay, and team credit.
 - [ ] Repository description, homepage URL, social preview, and topics are configured.
 
 ## Final claim audit
