@@ -1,19 +1,34 @@
 # Aegis — an immune system for AI agents
 
+[![CI](https://github.com/Abi5678/aegis/actions/workflows/ci.yml/badge.svg)](https://github.com/Abi5678/aegis/actions/workflows/ci.yml)
+
 Aegis is a Developer Tools hackathon project that attacks a deliberately vulnerable refund-support agent, turns verified failures into executable immunity, asks GPT‑5.6 and Codex to build three competing repairs, and places the winning real Git commit behind a human promotion gate.
 
 The vertical slice proves a specific claim: an agent can discover a failure outside its seed suite, diagnose it, mutate bounded prompts/code, survive protected attacks it never saw during repair, and preserve that vulnerability as a permanent regression.
 
-## Run the judge-ready replay
+## 60-second quickstart
 
 Requirements: Node 25+, npm, and Git.
 
 ```bash
-npm install
+npm ci
 npm run demo
 ```
 
 Open [http://localhost:3000](http://localhost:3000), select **90-sec replay**, and begin the adversarial trial. Replay is a deterministic reference simulation: its scores come from the real policy evaluator, while its displayed SHAs and diffs are clearly labeled reference artifacts. It needs no credentials. For a quick local check, use `npm run demo:fast`.
+
+## Evidence modes
+
+| | Replay | Live experiment |
+| --- | --- | --- |
+| Purpose | Credential-free, deterministic judge experience | Genuine GPT‑5.6 and Codex execution |
+| Policy scores | Produced by the real deterministic evaluator | Produced by the same deterministic evaluator |
+| Attacks and timeline | Fixed reference scenario | Generated and executed at runtime |
+| Candidate SHAs and diffs | Clearly labeled reference artifacts | Real frozen Git commits and diffs |
+| Credentials | None | OpenAI project key, Codex login, and live-control token |
+| Recommended use | Public demo and repeatable judging | Captured technical proof in a controlled environment |
+
+Replay never claims that its displayed SHAs are live commits, and live mode never silently falls back to replay.
 
 ## What the demonstration proves
 
@@ -141,12 +156,10 @@ GET  /api/health
 ## Verification
 
 ```bash
-npm test
-npm run typecheck
-npm run build
+npm run verify
 ```
 
-The suite covers every policy family, scoring and transition rules, promotion gates, replay provenance, torn-JSONL recovery, durable SSE resume, live control authorization, approval/rejection/rollback, real Git commits, immutable-blob scoring, protected-holdout ordering, Codex failure isolation, and Docker-confined guard execution.
+The command runs the test suite, TypeScript validation, and production build—the same gate used by CI. The suite covers every policy family, scoring and transition rules, promotion gates, replay provenance, torn-JSONL recovery, durable SSE resume, live control authorization, approval/rejection/rollback, real Git commits, immutable-blob scoring, protected-holdout ordering, Codex failure isolation, and Docker-confined guard execution.
 
 ## Docker replay deployment
 
@@ -160,3 +173,7 @@ The image deliberately excludes `.env*`, runtime data, prior outputs, and local 
 ## Hackathon disclosure
 
 Aegis claims behavioral evolution of prompts, permissions, tools, policy enforcement, and orchestration code—not model-weight training or unrestricted self-modification. It uses no customer data or third-party character assets, never auto-deploys a candidate, and clearly labels replay versus live execution.
+
+## Team
+
+Built for OpenAI Build Week by Abishek and Fatima.
