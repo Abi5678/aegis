@@ -15,7 +15,7 @@ Submission deadline: **July 21, 2026**. Treat every unchecked item as a release 
 
 - [x] `npm ci` succeeds from a clean clone on a supported Node release (verified on Node 26; CI uses Node 25).
 - [x] `npm run verify` passes twice consecutively.
-- [ ] GitHub Actions passes on the final integration commit.
+- [x] GitHub Actions passes on the submission PR.
 - [x] `npm run demo` starts replay with no credentials.
 - [x] Live mode fails clearly when credentials or Codex enablement are absent.
 - [x] Repository contains no `.env*`, runtime data, generated worktrees, or secrets.
