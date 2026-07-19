@@ -7,18 +7,18 @@ Submission deadline: **July 21, 2026**. Treat every unchecked item as a release 
 - [ ] Immunity PR explains Candidate C's winning reason in 15 seconds.
 - [ ] Before/after panel compares the same canonical attack ID and fingerprint.
 - [ ] Canonical path pauses for approval and creates no immunity after rejection.
-- [ ] Replay language consistently labels reference SHAs and diffs.
+- [x] Replay language consistently labels reference SHAs and diffs.
 - [ ] One genuine live run is captured with real Codex commit SHAs and protected-holdout ordering.
 - [ ] Live evidence is sanitized: no API keys, control tokens, private paths, or hidden reasoning.
 
 ## Reliability
 
-- [ ] `npm ci` succeeds from a clean clone on Node 25.
-- [ ] `npm run verify` passes twice consecutively.
+- [x] `npm ci` succeeds from a clean clone on a supported Node release (verified on Node 26; CI uses Node 25).
+- [x] `npm run verify` passes twice consecutively.
 - [ ] GitHub Actions passes on the final integration commit.
-- [ ] `npm run demo` starts replay with no credentials.
-- [ ] Live mode fails clearly when credentials or Codex enablement are absent.
-- [ ] Repository contains no `.env*`, runtime data, generated worktrees, or secrets.
+- [x] `npm run demo` starts replay with no credentials.
+- [x] Live mode fails clearly when credentials or Codex enablement are absent.
+- [x] Repository contains no `.env*`, runtime data, generated worktrees, or secrets.
 - [ ] Final integration branch is merged and `main` is green.
 
 ## Judge experience
@@ -32,7 +32,7 @@ Submission deadline: **July 21, 2026**. Treat every unchecked item as a release 
 
 ## Submission materials
 
-- [ ] Devpost project description states the problem, solution, approach, impact, and limitations.
+- [x] Devpost project description states the problem, solution, approach, impact, and limitations.
 - [ ] Repository and public demo URLs are final; video URL is still required.
 - [ ] Both teammates are registered and credited correctly.
 - [ ] Required track/category selections are confirmed against the current Devpost form.
@@ -45,11 +45,11 @@ Submission deadline: **July 21, 2026**. Treat every unchecked item as a release 
 
 For every number or claim used in the product, README, video, or Devpost entry:
 
-- [ ] the evidence source is identified;
-- [ ] the evaluation scope is stated;
-- [ ] replay and live provenance are not mixed;
-- [ ] limitations and remaining risks are visible;
-- [ ] no claim depends on hidden chain-of-thought.
+- [x] the evidence source is identified;
+- [x] the evaluation scope is stated;
+- [x] replay and live provenance are not mixed;
+- [x] limitations and remaining risks are visible;
+- [x] no claim depends on hidden chain-of-thought.
 
 ## Release sign-off
 
