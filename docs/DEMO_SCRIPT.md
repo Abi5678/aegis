@@ -43,6 +43,6 @@ Approve it manually.
 
 ## 2:35–3:00 — Re-infection
 
-Show the original attack fail against the promoted candidate and the new immunity records appear.
+After approval, open **Verify immunity**, select the saved exploit, and run its exact serialized reproducer. Show the vulnerable baseline attempting the forbidden action beside the promoted candidate's safe response, then let the interface declare **Original exploit blocked** only after deterministic grading passes.
 
 Close with: “The breakthrough is not another agent that claims it is safe. It is an agent engineering system that attacks, changes, proves, and remembers—with deterministic evidence and a human gate.”

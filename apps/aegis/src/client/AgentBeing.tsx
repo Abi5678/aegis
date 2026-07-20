@@ -40,10 +40,7 @@ const characterPalette: Record<Exclude<AgentActor, "system">, { primary: string;
   judge: { primary: "#f4d35e", secondary: "#7f72ff", accent: "#fff8d9", ink: "#171206" },
 };
 
-// Blender-rendered agents progressively replace their SVG counterparts. Keeping this
-// map explicit means an unavailable render can never make an arena role disappear.
 const renderedCharacters: Partial<Record<Exclude<AgentActor, "system">, string>> = {
-  guardian: "/characters/aegis-guardian.png",
 };
 
 function RoleProp({ actor, palette }: { actor: Exclude<AgentActor, "system">; palette: typeof characterPalette[Exclude<AgentActor, "system">] }) {

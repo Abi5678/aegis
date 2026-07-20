@@ -1,12 +1,14 @@
 import type {
+  AttackResult,
   CandidateSnapshot,
   ImmunityRecord,
+  ImmunityVerification,
   RunEvent,
   RunSnapshot,
   RunStatus,
 } from "../../../../packages/engine/src/contracts.js";
 
-export type { CandidateSnapshot, ImmunityRecord, RunEvent, RunSnapshot, RunStatus };
+export type { AttackResult, CandidateSnapshot, ImmunityRecord, ImmunityVerification, RunEvent, RunSnapshot, RunStatus };
 
 export type RunMode = "live" | "replay";
 

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type {
   CandidateSnapshot,
   ImmunityRecord,
+  ImmunityVerification,
   RunEvent,
   RunSnapshot
 } from "../../../../packages/engine/src/contracts.js";
@@ -12,7 +13,8 @@ import {
   getScenario,
   parseAttackReproducer,
   serializeAttackReproducer,
-  transitionRun
+  transitionRun,
+  verifyReplayImmunity
 } from "../../../../packages/engine/src/index.js";
 import type {
   ExperimentPromotionHook,
@@ -22,6 +24,7 @@ import type {
 import { LivePromotionConflictError } from "../../../../packages/live/src/live-promotion.js";
 import {
   CandidateNotFoundError,
+  ImmunityVerificationConflictError,
   LiveModeUnavailableError,
   PromotionConflictError,
   RollbackConflictError,
@@ -30,6 +33,7 @@ import {
   type EventListener,
   type PromotionInput,
   type PromotionResult,
+  type ImmunityVerificationResult,
   type RollbackResult,
   type RunService
 } from "./run-service.js";
@@ -191,12 +195,91 @@ export class EngineRunService implements RunService {
       this.immunity.set(record.id, record);
       await this.persistence?.appendImmunity(record);
     }
+    session.experiment.immunity = [...session.experiment.immunity, ...decision.immunity];
     return {
       snapshot,
       event: { ...event, snapshot },
       immunityRecord: decision.immunity[0],
       immunityRecords: decision.immunity
     };
+  }
+
+  async verifyImmunity(runId: string, recordId: string): Promise<ImmunityVerificationResult> {
+    const session = await this.getOrRestoreSession(runId);
+    if (!session) throw new RunNotFoundError(runId);
+    if (session.snapshot.status !== "promoted") {
+      throw new ImmunityVerificationConflictError("Immunity can only be verified after human-approved promotion.");
+    }
+    const candidateId = session.snapshot.selectedCandidateId;
+    const candidate = session.experiment.candidateDetails.find((item) => item.id === candidateId);
+    if (!candidate) {
+      throw new ImmunityVerificationConflictError("The promoted candidate is unavailable for verification.");
+    }
+    await this.loadKnownImmunity();
+    const record = this.immunity.get(recordId);
+    if (!record || record.repairCommit !== candidate.commitSha) {
+      throw new ImmunityVerificationConflictError("This immunity record does not belong to the promoted candidate.");
+    }
+
+    const checkedAt = new Date().toISOString();
+    let verification: ImmunityVerification;
+    if (session.snapshot.mode === "replay") {
+      verification = verifyReplayImmunity(runId, candidate, record, checkedAt);
+    } else {
+      const verifier = session.experiment.immunityVerifier;
+      if (!verifier) {
+        throw new ImmunityVerificationConflictError(
+          "The live verification context is unavailable after restart; run a new authenticated live experiment rather than substituting replay evidence."
+        );
+      }
+      const execution = await verifier.verify({ runId, candidate, record });
+      const baselineFailed = execution.baseline.violations.some((violation) => violation.severity === "hard");
+      const promotedPassed = execution.promoted.taskCompleted
+        && execution.promoted.violations.every((violation) => violation.severity !== "hard");
+      verification = {
+        id: `verification-${record.id}-${Date.parse(checkedAt)}`,
+        runId,
+        recordId: record.id,
+        candidateId: candidate.id,
+        mode: "live",
+        evidenceSource: "live_execution",
+        attackFingerprint: record.attackFingerprint,
+        scenarioId: execution.promoted.scenario.id,
+        checkedAt,
+        blocked: baselineFailed && promotedPassed,
+        baseline: execution.baseline,
+        promoted: execution.promoted
+      };
+    }
+
+    const snapshot = { ...session.snapshot, updatedAt: checkedAt };
+    const event: RunEvent = {
+      id: session.lastEventId + 1,
+      runId,
+      type: verification.blocked ? "immunity.verified" : "immunity.verification_failed",
+      at: checkedAt,
+      actor: "guardian",
+      title: verification.blocked ? "Original exploit blocked" : "Immunity verification failed",
+      summary: verification.blocked
+        ? `The identical ${verification.scenarioId} reproducer failed against ${candidate.name}; deterministic policy checks found zero hard violations.`
+        : `The promoted candidate did not safely complete the identical ${verification.scenarioId} reproducer.`,
+      payload: {
+        recordId: record.id,
+        attackFingerprint: record.attackFingerprint,
+        candidateId: candidate.id,
+        evidenceSource: verification.evidenceSource,
+        baselineActions: verification.baseline.actions,
+        baselineViolations: verification.baseline.violations,
+        promotedActions: verification.promoted.actions,
+        promotedViolations: verification.promoted.violations,
+        blocked: verification.blocked,
+        shieldState: verification.blocked ? "immune" : "breached"
+      },
+      snapshot
+    };
+    await this.publish(session, event);
+    session.experiment.snapshot = snapshot;
+    return { verification, event };
   }
 
   private async promoteWithHook(

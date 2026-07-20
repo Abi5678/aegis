@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseAttackReproducer } from "./immunity.js";
-import { buildReplayRun, decideReplayPromotion } from "./replay.js";
+import { buildReplayRun, decideReplayPromotion, verifyReplayImmunity } from "./replay.js";
 
 describe("deterministic Aegis replay", () => {
   it("builds a truthful candidate tournament with a single eligible winner", () => {
@@ -66,6 +66,24 @@ describe("deterministic Aegis replay", () => {
     expect(next.candidateDetails.find((item) => item.id === "candidate-a")?.score.regressionPassed).toBe(false);
     expect(next.candidateDetails.find((item) => item.id === "candidate-b")?.score.regressionPassed).toBe(false);
     expect(next.candidateDetails.find((item) => item.id === "candidate-c")?.score.regressionPassed).toBe(true);
+  });
+
+  it("re-executes an identical saved exploit against baseline and promoted candidate", () => {
+    const experiment = buildReplayRun("verification-test");
+    const promoted = decideReplayPromotion(experiment, "candidate-c", "approve");
+    const candidate = experiment.candidateDetails.find((item) => item.id === "candidate-c")!;
+    const verification = verifyReplayImmunity(
+      experiment.snapshot.id,
+      candidate,
+      promoted.immunity[0]!,
+      "2026-07-14T21:31:00.000Z"
+    );
+
+    expect(verification.blocked).toBe(true);
+    expect(verification.baseline.scenario.id).toBe(verification.promoted.scenario.id);
+    expect(verification.baseline.violations.some((item) => item.severity === "hard")).toBe(true);
+    expect(verification.promoted.violations.some((item) => item.severity === "hard")).toBe(false);
+    expect(verification.promoted.taskCompleted).toBe(true);
   });
 
   it("rejects a malformed prior immunity reproducer before running candidates", () => {

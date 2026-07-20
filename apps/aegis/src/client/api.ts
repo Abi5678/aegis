@@ -1,4 +1,4 @@
-import type { CandidateDetail, ImmunityRecord, RunMode, RunSnapshot } from "./types.js";
+import type { CandidateDetail, ImmunityRecord, ImmunityVerification, RunEvent, RunMode, RunSnapshot } from "./types.js";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -61,6 +61,19 @@ export function rollbackPromotion(
   return request(`/api/runs/${encodeURIComponent(runId)}/rollback`, {
     method: "POST",
     headers: liveControlHeader("live", controlToken),
+  });
+}
+
+export function verifyImmunity(
+  runId: string,
+  recordId: string,
+  mode: RunMode,
+  controlToken?: string,
+): Promise<{ verification: ImmunityVerification; event: RunEvent }> {
+  return request(`/api/runs/${encodeURIComponent(runId)}/immunity/verify`, {
+    method: "POST",
+    headers: liveControlHeader(mode, controlToken),
+    body: JSON.stringify({ recordId }),
   });
 }
 

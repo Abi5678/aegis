@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { AttackFeed } from "./AttackFeed.js";
 import { ImmuneArena } from "./ImmuneArena.js";
+import { ImmunityVerificationPanel } from "./ImmunityVerificationPanel.js";
 import { Inspector } from "./Inspector.js";
 import { PhaseSpine } from "./PhaseSpine.js";
 import { PromotionGate } from "./PromotionGate.js";
@@ -87,6 +88,7 @@ export default function App() {
           selection={selection}
           onSelect={setSelection}
           onCandidateSelect={selectCandidate}
+          immunityVerified={aegis.verification?.blocked}
         />
         <Inspector
           snapshot={aegis.snapshot}
@@ -162,6 +164,14 @@ export default function App() {
         onInspect={selectCandidate}
       />
 
+      <ImmunityVerificationPanel
+        snapshot={aegis.snapshot}
+        records={aegis.immunity}
+        verification={aegis.verification}
+        pending={aegis.actionPending}
+        onVerify={(recordId) => void aegis.verify(recordId)}
+      />
+
       <RollbackControl
         snapshot={aegis.snapshot}
         pending={aegis.actionPending}
@@ -178,7 +188,13 @@ export default function App() {
       </AnimatePresence>
 
       {aegis.snapshot?.status === "promoted" && (
-        <div className="success-ribbon"><SparkIcon size={13} /> {aegis.snapshot.mode === "replay" ? "REFERENCE IMMUNITY SAVED · SIMULATION DEMONSTRATES ORIGINAL EXPLOIT BLOCKED" : "IMMUNITY ACQUIRED · ORIGINAL EXPLOIT BLOCKED · ANTIBODY PERSISTED"}</div>
+        <div className="success-ribbon"><SparkIcon size={13} /> {aegis.verification?.blocked
+          ? aegis.snapshot.mode === "replay"
+            ? "REFERENCE RE-ATTACK PASSED · ORIGINAL EXPLOIT BLOCKED"
+            : "LIVE RE-ATTACK PASSED · ORIGINAL EXPLOIT BLOCKED"
+          : aegis.snapshot.mode === "replay"
+            ? "REFERENCE IMMUNITY SAVED · POST-PROMOTION VERIFICATION READY"
+            : "IMMUNITY ACQUIRED · POST-PROMOTION VERIFICATION READY"}</div>
       )}
       {aegis.snapshot?.status === "rolled_back" && (
         <div className="success-ribbon success-ribbon--rollback"><CloseIcon size={13} /> LIVE REPAIR ROLLED BACK · PROTECTED REF RESTORED · ATTACK MEMORY RETAINED</div>

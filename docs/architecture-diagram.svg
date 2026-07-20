@@ -1,0 +1,143 @@
+<svg width="1400" height="980" viewBox="0 0 1400 980" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Aegis architecture diagram</title>
+  <desc id="desc">Aegis architecture showing the Immune Arena UI, API, deterministic engine, live GPT-5.6 and Codex path, refund-agent target, protected evaluation boundary, and human-gated immunity promotion.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 800 34px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 500 16px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+      .label { font: 800 17px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .small { font: 500 13px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+      .tiny { font: 700 11px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; letter-spacing: .08em; }
+      .box { stroke-width: 2; rx: 18; filter: url(#shadow); }
+      .line { stroke: #334155; stroke-width: 2.4; marker-end: url(#arrow); }
+      .thin { stroke: #94a3b8; stroke-width: 1.8; marker-end: url(#arrow); }
+      .surface { fill: #eaf4ff; stroke: #2f6fed; }
+      .core { fill: #effaf1; stroke: #2f9e44; }
+      .live { fill: #fff3df; stroke: #f08c00; }
+      .target { fill: #f8f0ff; stroke: #845ef7; }
+      .evidence { fill: #f1f5f9; stroke: #64748b; }
+      .gate { fill: #fff0f0; stroke: #e03131; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1400" height="980"/>
+  <text class="title" x="70" y="62">Aegis Architecture</text>
+  <text class="subtitle" x="70" y="91">An immune system for AI agents: attack, repair, prove, approve, and remember.</text>
+
+  <rect class="box surface" x="70" y="140" width="250" height="96"/>
+  <text class="tiny" x="96" y="169">SURFACE</text>
+  <text class="label" x="96" y="196">Immune Arena UI</text>
+  <text class="small" x="96" y="219">React + Vite evidence interface</text>
+
+  <rect class="box surface" x="390" y="140" width="250" height="96"/>
+  <text class="tiny" x="416" y="169">API</text>
+  <text class="label" x="416" y="196">Fastify REST + SSE</text>
+  <text class="small" x="416" y="219">Runs, events, promotion, replay</text>
+
+  <rect class="box core" x="710" y="140" width="250" height="96"/>
+  <text class="tiny" x="736" y="169">CORE</text>
+  <text class="label" x="736" y="196">Run State Machine</text>
+  <text class="small" x="736" y="219">attack to diagnosis to immunity</text>
+
+  <rect class="box evidence" x="1030" y="140" width="250" height="96"/>
+  <text class="tiny" x="1056" y="169">EVIDENCE</text>
+  <text class="label" x="1056" y="196">Durable Event Store</text>
+  <text class="small" x="1056" y="219">events.jsonl + snapshot.json</text>
+
+  <path class="line" d="M320 188 H390"/>
+  <path class="line" d="M640 188 H710"/>
+  <path class="line" d="M960 188 H1030"/>
+  <path class="thin" d="M1155 236 C1155 282 190 282 190 236"/>
+
+  <rect class="box evidence" x="70" y="330" width="250" height="112"/>
+  <text class="tiny" x="96" y="359">PUBLIC PATH</text>
+  <text class="label" x="96" y="386">Replay Mode</text>
+  <text class="small" x="96" y="409">credential-free deterministic demo</text>
+  <text class="small" x="96" y="430">reference scores and labeled SHAs</text>
+
+  <rect class="box live" x="390" y="330" width="250" height="112"/>
+  <text class="tiny" x="416" y="359">LIVE PATH</text>
+  <text class="label" x="416" y="386">GPT-5.6 Orchestration</text>
+  <text class="small" x="416" y="409">diagnosis and mutation planning</text>
+  <text class="small" x="416" y="430">Terra target conversations</text>
+
+  <rect class="box live" x="710" y="330" width="250" height="112"/>
+  <text class="tiny" x="736" y="359">REPAIR BUILDERS</text>
+  <text class="label" x="736" y="386">Codex Candidates</text>
+  <text class="small" x="736" y="409">three isolated SDK threads</text>
+  <text class="small" x="736" y="430">instruction, permission, orchestration</text>
+
+  <rect class="box live" x="1030" y="330" width="250" height="112"/>
+  <text class="tiny" x="1056" y="359">ISOLATION</text>
+  <text class="label" x="1056" y="386">Git Worktrees</text>
+  <text class="small" x="1056" y="409">target-only mutable files</text>
+  <text class="small" x="1056" y="430">candidate SHAs frozen before holdouts</text>
+
+  <path class="line" d="M835 236 V286 C835 306 515 306 515 330"/>
+  <path class="line" d="M640 386 H710"/>
+  <path class="line" d="M960 386 H1030"/>
+  <path class="thin" d="M195 330 V286 C195 306 515 306 515 330"/>
+
+  <rect class="box target" x="220" y="540" width="300" height="124"/>
+  <text class="tiny" x="248" y="571">TARGET</text>
+  <text class="label" x="248" y="598">Refund-Support Agent</text>
+  <text class="small" x="248" y="622">vulnerable prompt, tools, orchestration</text>
+  <text class="small" x="248" y="644">attempted actions remain observable</text>
+
+  <rect class="box target" x="560" y="540" width="300" height="124"/>
+  <text class="tiny" x="588" y="571">CONSTITUTION</text>
+  <text class="label" x="588" y="598">Deterministic Rules</text>
+  <text class="small" x="588" y="622">refund windows, receipts, privacy</text>
+  <text class="small" x="588" y="644">discounts, payment method, escalation</text>
+
+  <rect class="box core" x="900" y="540" width="300" height="124"/>
+  <text class="tiny" x="928" y="571">EVALUATOR</text>
+  <text class="label" x="928" y="598">Scoring + Hard Gates</text>
+  <text class="small" x="928" y="622">policy compliance and task completion</text>
+  <text class="small" x="928" y="644">zero privacy/tool regressions required</text>
+
+  <path class="line" d="M195 442 V485 C195 520 370 520 370 540"/>
+  <path class="line" d="M1155 442 V485 C1155 520 370 520 370 540"/>
+  <path class="line" d="M520 602 H560"/>
+  <path class="line" d="M860 602 H900"/>
+
+  <rect class="box evidence" x="115" y="760" width="250" height="112"/>
+  <text class="tiny" x="141" y="789">PROOF BOUNDARY</text>
+  <text class="label" x="141" y="816">Protected Holdouts</text>
+  <text class="small" x="141" y="839">created after candidate freeze</text>
+  <text class="small" x="141" y="860">never sent to Codex</text>
+
+  <rect class="box core" x="415" y="760" width="250" height="112"/>
+  <text class="tiny" x="441" y="789">TOURNAMENT</text>
+  <text class="label" x="441" y="816">Baseline vs A / B / C</text>
+  <text class="small" x="441" y="839">protected score and regression checks</text>
+  <text class="small" x="441" y="860">honest do-not-promote if gates fail</text>
+
+  <rect class="box gate" x="715" y="760" width="250" height="112"/>
+  <text class="tiny" x="741" y="789">HUMAN CONTROL</text>
+  <text class="label" x="741" y="816">Immunity PR</text>
+  <text class="small" x="741" y="839">diff, behavior change, risks</text>
+  <text class="small" x="741" y="860">approve or reject promotion</text>
+
+  <rect class="box gate" x="1015" y="760" width="250" height="112"/>
+  <text class="tiny" x="1041" y="789">MEMORY</text>
+  <text class="label" x="1041" y="816">Re-attack + Immunity</text>
+  <text class="small" x="1041" y="839">original exploit must be blocked</text>
+  <text class="small" x="1041" y="860">saved as permanent regression</text>
+
+  <path class="line" d="M1050 664 V710 C1050 738 240 738 240 760"/>
+  <path class="line" d="M365 816 H415"/>
+  <path class="line" d="M665 816 H715"/>
+  <path class="line" d="M965 816 H1015"/>
+  <path class="thin" d="M1140 760 V704 C1140 692 1155 692 1155 236"/>
+
+  <rect x="70" y="915" width="1260" height="1" fill="#cbd5e1"/>
+  <text class="small" x="70" y="948">Key claim: Codex can build repairs, but the evaluator and protected attacks stay outside its worktree; human approval is required before immunity is promoted.</text>
+</svg>

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createRun, promoteCandidate, rollbackPromotion } from "./api.js";
+import { createRun, promoteCandidate, rollbackPromotion, verifyImmunity } from "./api.js";
 
 function mockJson(body: unknown) {
   const fetchMock = vi.fn(async () => new Response(JSON.stringify(body), {
@@ -50,5 +50,22 @@ describe("live control token transport", () => {
     expect(call[0]).toBe("/api/runs/run-live/rollback");
     expect(call[1].method).toBe("POST");
     expect(headersFrom(call).get("x-aegis-control-token")).toBe("live-token");
+  });
+
+  it("authenticates a live post-promotion immunity verification", async () => {
+    const fetchMock = mockJson({ verification: {}, event: {} });
+    await verifyImmunity("run-live", "record-1", "live", " live-token ");
+    const call = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+
+    expect(call[0]).toBe("/api/runs/run-live/immunity/verify");
+    expect(call[1].method).toBe("POST");
+    expect(headersFrom(call).get("x-aegis-control-token")).toBe("live-token");
+    expect(JSON.parse(String(call[1].body))).toEqual({ recordId: "record-1" });
+  });
+
+  it("does not send a control token for deterministic replay verification", async () => {
+    const fetchMock = mockJson({ verification: {}, event: {} });
+    await verifyImmunity("run-replay", "record-1", "replay", "must-not-leave-memory");
+    expect(headersFrom(fetchMock.mock.calls[0]).has("x-aegis-control-token")).toBe(false);
   });
 });

@@ -7,6 +7,7 @@ import {
   evaluateAttempt,
   evaluatePromotionGates,
   immunityRecordsToRegressionScenarios,
+  parseAttackReproducer,
   regressionScenarios,
   scoreResults,
   seedScenarios,
@@ -43,6 +44,7 @@ import {
 } from "./worktree-manager.js";
 import {
   GitProtectedRefPromotionHook,
+  type ExperimentImmunityVerifier,
   type ExperimentPromotionHook,
 } from "./live-promotion.js";
 
@@ -101,6 +103,7 @@ interface PreparedTarget {
 
 export interface LiveReplayExperiment extends ReplayExperiment {
   promotionHook: ExperimentPromotionHook;
+  immunityVerifier?: ExperimentImmunityVerifier;
 }
 
 interface BuiltCandidate {
@@ -473,6 +476,8 @@ export class LiveExperimentFactory {
     timeline.phase("diagnosing", this.now());
     const mutations = await this.orchestrator.diagnoseAndPlan(discoveredFailures, ALLOWED_MUTATION_FILES);
     await timeline.emit(this.now(), "diagnostician", "diagnosis.completed", "GPT-5.6 designed three bounded repair hypotheses", "Instruction, permission, and orchestration mutations will compete against the same observable failures.", {
+      model: "gpt-5.6",
+      reasoningEffort: "high",
       mutationKinds: mutations.map((mutation) => mutation.kind),
       failureCount: discoveredFailures.length,
       shieldState: "breached",
@@ -481,6 +486,8 @@ export class LiveExperimentFactory {
     timeline.phase("mutating", this.now());
     for (const mutation of mutations) {
       await timeline.emit(this.now(), "builder", "mutation.planned", candidateName(mutation.kind), mutation.hypothesis, {
+        plannedBy: "gpt-5.6",
+        implementedBy: "Codex",
         candidateId: mutation.kind,
         allowedFiles: mutation.allowedFiles,
         shieldState: "repairing",
@@ -667,6 +674,24 @@ export class LiveExperimentFactory {
       candidate.spec.kind,
       [...candidate.developmentResults, ...candidate.regressionResults, ...candidate.holdoutResults],
     ]));
+    const scoredById = new Map(scoredCandidates.map((candidate) => [candidate.snapshot.id, candidate]));
+    const immunityVerifier: ExperimentImmunityVerifier = {
+      verify: async ({ candidate, record }) => {
+        const built = scoredById.get(candidate.id);
+        if (!built || built.frozen.commitSha !== candidate.commitSha || record.repairCommit !== candidate.commitSha) {
+          throw new Error("The promoted candidate no longer matches its frozen verification context.");
+        }
+        const scenario = parseAttackReproducer(record.reproducer);
+        if (scenario.id !== record.scenarioId) {
+          throw new Error("The immunity record does not match its serialized attack reproducer.");
+        }
+        const prompt = await readFrozenCandidateFile(built.frozen, "system-prompt.md");
+        const guard = await loadCandidateGuard(built.frozen, this.guardCompiler);
+        const baseline = (await evaluateScenarios(this.runner, [scenario], prepared.baselinePrompt))[0]!;
+        const promoted = (await evaluateScenarios(this.runner, [scenario], prompt, guard))[0]!;
+        return { baseline, promoted };
+      },
+    };
     return {
       snapshot: structuredClone(timeline.snapshot),
       events: timeline.events,
@@ -677,6 +702,7 @@ export class LiveExperimentFactory {
       baselineResults: [...seedResults, ...developmentResults, ...baselineHoldoutResults],
       candidateResults,
       replayDurationMs: Math.max(1_000, this.now().getTime() - startedAt.getTime()),
+      immunityVerifier,
       promotionHook: new GitProtectedRefPromotionHook({
         repository: prepared.repository,
         protectedRef: prepared.protectedRef,

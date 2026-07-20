@@ -111,6 +111,23 @@ describe("Aegis replay API integration", () => {
         { regressionPassed: true }
       ]
     });
+    const promotedRecordId = promotion.json<{ immunityRecords: Array<{ id: string }> }>().immunityRecords[0]!.id;
+
+    const verification = await app.inject({
+      method: "POST",
+      url: `/api/runs/${runId}/immunity/verify`,
+      payload: { recordId: promotedRecordId }
+    });
+    expect(verification.statusCode).toBe(200);
+    expect(verification.json()).toMatchObject({
+      verification: {
+        blocked: true,
+        evidenceSource: "deterministic_replay",
+        baseline: { taskCompleted: false },
+        promoted: { taskCompleted: true, violations: [] }
+      },
+      event: { type: "immunity.verified" }
+    });
 
     const immunity = await app.inject({ method: "GET", url: "/api/immunity" });
     expect(immunity.json<{ records: unknown[] }>().records).toHaveLength(3);
@@ -127,6 +144,14 @@ describe("Aegis replay API integration", () => {
     const restored = await restoredApp.inject({ method: "GET", url: `/api/runs/${runId}` });
     expect(restored.statusCode).toBe(200);
     expect(restored.json()).toMatchObject({ id: runId, status: "promoted" });
+
+    const restoredVerification = await restoredApp.inject({
+      method: "POST",
+      url: `/api/runs/${runId}/immunity/verify`,
+      payload: { recordId: promotedRecordId }
+    });
+    expect(restoredVerification.statusCode).toBe(200);
+    expect(restoredVerification.json()).toMatchObject({ verification: { blocked: true } });
   });
 
   it("does not disguise replay as live execution", async () => {

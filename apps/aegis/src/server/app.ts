@@ -11,6 +11,7 @@ import { z } from "zod";
 import type { RunEvent } from "../../../../packages/engine/src/contracts.js";
 import {
   CandidateNotFoundError,
+  ImmunityVerificationConflictError,
   LiveModeUnavailableError,
   PromotionConflictError,
   RollbackConflictError,
@@ -26,6 +27,10 @@ const createRunSchema = z.object({
 const promotionSchema = z.object({
   candidateId: z.string().trim().min(1),
   decision: z.enum(["approve", "reject"])
+}).strict();
+
+const immunityVerificationSchema = z.object({
+  recordId: z.string().trim().min(1)
 }).strict();
 
 const paramsSchema = z.object({ id: z.string().trim().min(1) });
@@ -103,6 +108,18 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
     return reply.code(200).send(result);
   });
 
+  app.post("/api/runs/:id/immunity/verify", async (request, reply) => {
+    const { id } = paramsSchema.parse(request.params);
+    const { recordId } = immunityVerificationSchema.parse(request.body);
+    const snapshot = await options.service.getRun(id);
+    if (!snapshot) throw new RunNotFoundError(id);
+    if (snapshot.mode === "live") {
+      const failure = authorizeLiveControl(request, options.liveControlToken);
+      if (failure) return reply.code(failure.statusCode).send(failure.body);
+    }
+    return reply.code(200).send(await options.service.verifyImmunity(id, recordId));
+  });
+
   app.post("/api/runs/:id/rollback", async (request, reply) => {
     const { id } = paramsSchema.parse(request.params);
     const snapshot = await options.service.getRun(id);
@@ -155,6 +172,9 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
     }
     if (error instanceof RollbackConflictError) {
       return reply.code(409).send({ error: "rollback_conflict", message: error.message });
+    }
+    if (error instanceof ImmunityVerificationConflictError) {
+      return reply.code(409).send({ error: "immunity_verification_conflict", message: error.message });
     }
     if (error instanceof LiveModeUnavailableError) {
       return reply.code(503).send({ error: "live_mode_unconfigured", message: error.message });

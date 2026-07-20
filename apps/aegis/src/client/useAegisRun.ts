@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createRun, getCandidate, getImmunity, getRun, promoteCandidate, rollbackPromotion, subscribeToRun } from "./api.js";
+import { createRun, getCandidate, getImmunity, getRun, promoteCandidate, rollbackPromotion, subscribeToRun, verifyImmunity } from "./api.js";
 import type {
   CandidateDetail,
   ImmunityRecord,
+  ImmunityVerification,
   RunEvent,
   RunMode,
   RunSnapshot,
@@ -15,6 +16,7 @@ interface AegisRunState {
   immunity: ImmunityRecord[];
   inheritedImmunityIds: string[];
   candidateDetail: CandidateDetail | null;
+  verification: ImmunityVerification | null;
   connecting: boolean;
   actionPending: boolean;
   error: string | null;
@@ -22,6 +24,7 @@ interface AegisRunState {
   inspectCandidate: (candidateId: string) => Promise<void>;
   decide: (candidateId: string, decision: "approve" | "reject") => Promise<void>;
   rollback: () => Promise<void>;
+  verify: (recordId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -40,6 +43,7 @@ export function useAegisRun(): AegisRunState {
   const [immunity, setImmunity] = useState<ImmunityRecord[]>([]);
   const [inheritedImmunityIds, setInheritedImmunityIds] = useState<string[]>([]);
   const [candidateDetail, setCandidateDetail] = useState<CandidateDetail | null>(null);
+  const [verification, setVerification] = useState<ImmunityVerification | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [actionPending, setActionPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -141,6 +145,7 @@ export function useAegisRun(): AegisRunState {
       controlTokenRef.current = mode === "live" ? controlToken?.trim() || null : null;
       setEvents([]);
       setCandidateDetail(null);
+      setVerification(null);
       try {
         const beforeRun = await getImmunity().catch(() => immunity);
         setImmunity(beforeRun);
@@ -220,12 +225,42 @@ export function useAegisRun(): AegisRunState {
     }
   }, [snapshot]);
 
+  const verify = useCallback(async (recordId: string) => {
+    if (!snapshot || snapshot.status !== "promoted") return;
+    setActionPending(true);
+    setError(null);
+    setVerification(null);
+    try {
+      const [result] = await Promise.all([
+        verifyImmunity(
+          snapshot.id,
+          recordId,
+          snapshot.mode,
+          snapshot.mode === "live" ? controlTokenRef.current ?? undefined : undefined,
+        ),
+        new Promise<void>((resolve) => window.setTimeout(resolve, 750)),
+      ]);
+      setVerification(result.verification);
+      snapshotRef.current = result.event.snapshot;
+      setSnapshot(result.event.snapshot);
+      lastEventIdRef.current = Math.max(lastEventIdRef.current, result.event.id);
+      setEvents((current) => current.some((event) => event.id === result.event.id)
+        ? current
+        : [...current, result.event].sort((left, right) => left.id - right.id).slice(-120));
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "The immunity reproducer could not be verified.");
+    } finally {
+      setActionPending(false);
+    }
+  }, [snapshot]);
+
   return {
     snapshot,
     events,
     immunity,
     inheritedImmunityIds,
     candidateDetail,
+    verification,
     connecting,
     actionPending,
     error,
@@ -233,6 +268,7 @@ export function useAegisRun(): AegisRunState {
     inspectCandidate,
     decide,
     rollback,
+    verify,
     clearError: () => setError(null),
   };
 }

@@ -1,6 +1,7 @@
 import type {
   CandidateSnapshot,
   ImmunityRecord,
+  ImmunityVerification,
   RunEvent,
   RunSnapshot
 } from "../../../../packages/engine/src/contracts.js";
@@ -28,6 +29,11 @@ export type RollbackResult = {
   immunityRecords: ImmunityRecord[];
 };
 
+export type ImmunityVerificationResult = {
+  verification: ImmunityVerification;
+  event: RunEvent;
+};
+
 export type EventListener = (event: RunEvent) => void;
 
 /**
@@ -42,6 +48,7 @@ export interface RunService {
   subscribe(runId: string, listener: EventListener): (() => void) | null;
   getCandidate(runId: string, candidateId: string): Promise<CandidateSnapshot | null>;
   promote(runId: string, input: PromotionInput): Promise<PromotionResult>;
+  verifyImmunity(runId: string, recordId: string): Promise<ImmunityVerificationResult>;
   rollback(runId: string): Promise<RollbackResult>;
   listImmunity(): Promise<ImmunityRecord[]>;
   close?(): Promise<void>;
@@ -72,6 +79,13 @@ export class RollbackConflictError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "RollbackConflictError";
+  }
+}
+
+export class ImmunityVerificationConflictError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ImmunityVerificationConflictError";
   }
 }
 

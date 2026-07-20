@@ -33,8 +33,24 @@ export interface ExperimentPromotionHook {
   execute(request: ExperimentPromotionRequest): Promise<ExperimentPromotionReceipt>;
 }
 
+export interface ExperimentImmunityVerificationRequest {
+  runId: string;
+  candidate: CandidateSnapshot;
+  record: ImmunityRecord;
+}
+
+export interface ExperimentImmunityVerificationExecution {
+  baseline: AttackResult;
+  promoted: AttackResult;
+}
+
+export interface ExperimentImmunityVerifier {
+  verify(request: ExperimentImmunityVerificationRequest): Promise<ExperimentImmunityVerificationExecution>;
+}
+
 export interface PromotableExperiment {
   promotionHook?: ExperimentPromotionHook;
+  immunityVerifier?: ExperimentImmunityVerifier;
 }
 
 export class LivePromotionConflictError extends Error {

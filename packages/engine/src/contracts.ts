@@ -89,6 +89,21 @@ export interface ImmunityRecord {
   createdAt: string;
 }
 
+export interface ImmunityVerification {
+  id: string;
+  runId: string;
+  recordId: string;
+  candidateId: string;
+  mode: "live" | "replay";
+  evidenceSource: "live_execution" | "deterministic_replay";
+  attackFingerprint: string;
+  scenarioId: string;
+  checkedAt: string;
+  blocked: boolean;
+  baseline: AttackResult;
+  promoted: AttackResult;
+}
+
 export type RunStatus = "idle" | "attacking" | "diagnosing" | "mutating" | "validating" | "holdout" | "awaiting_approval" | "promoted" | "rolled_back" | "rejected" | "failed";
 
 export interface CandidateSnapshot {

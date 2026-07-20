@@ -11,6 +11,7 @@ interface ImmuneArenaProps {
   selection: InspectorSelection | null;
   onSelect: (selection: InspectorSelection) => void;
   onCandidateSelect: (id: string) => void;
+  immunityVerified?: boolean;
 }
 
 type VisibleActor = Exclude<AgentActor, "system">;
@@ -29,15 +30,17 @@ const actorPositions: Record<VisibleActor, React.CSSProperties> = {
 
 const actors = Object.keys(actorPositions) as VisibleActor[];
 
-function stageMessage(status: RunSnapshot["status"] | "dormant", mode?: RunSnapshot["mode"]) {
+function stageMessage(status: RunSnapshot["status"] | "dormant", mode?: RunSnapshot["mode"], immunityVerified = false) {
   switch (status) {
     case "attacking": return ["ADVERSARIAL SWARM ACTIVE", "Pathogens are probing behavioral boundaries"];
-    case "diagnosing": return ["BREACH UNDER DIAGNOSIS", "Failure traces are being converted into repair hypotheses"];
+    case "diagnosing": return ["GPT-5.6 DIAGNOSIS ACTIVE", "Verified failures are becoming bounded repair hypotheses"];
     case "mutating": return ["CANDIDATE GENESIS", "Codex is building isolated behavioral repairs"];
     case "validating": return ["TOURNAMENT IN PROGRESS", "Candidate antibodies are facing the regression suite"];
     case "holdout": return ["PROTECTED TRIAL", "Unseen attacks are testing generalization"];
     case "awaiting_approval": return mode === "replay" ? ["REFERENCE RESULT READY", "Deterministic reference evidence is awaiting human review"] : ["HUMAN GATE REQUIRED", "A verified repair is awaiting promotion"];
-    case "promoted": return mode === "replay" ? ["REFERENCE IMMUNITY SAVED", "The deterministic simulation demonstrates the original exploit being blocked"] : ["IMMUNITY ACQUIRED", "The original exploit is blocked and remembered"];
+    case "promoted": return immunityVerified
+      ? ["ORIGINAL EXPLOIT BLOCKED", mode === "replay" ? "The deterministic reproducer passed after promotion" : "Fresh live execution passed after promotion"]
+      : [mode === "replay" ? "REFERENCE IMMUNITY SAVED" : "IMMUNITY ACQUIRED", "Post-promotion re-attack is ready"];
     case "rolled_back": return ["LIVE REPAIR ROLLED BACK", "The protected ref is back at baseline; attack memory remains active"];
     case "rejected": return ["PROMOTION REJECTED", "No behavioral change was applied"];
     case "failed": return ["EXPERIMENT CONTAINED", "The baseline remains unchanged"];
@@ -77,9 +80,9 @@ function ArenaBackdrop({ active, danger }: { active: boolean; danger: boolean })
   );
 }
 
-export function ImmuneArena({ snapshot, events, selection, onSelect, onCandidateSelect }: ImmuneArenaProps) {
+export function ImmuneArena({ snapshot, events, selection, onSelect, onCandidateSelect, immunityVerified = false }: ImmuneArenaProps) {
   const status = snapshot?.status ?? "idle";
-  const [headline, subhead] = stageMessage(snapshot?.status ?? "dormant", snapshot?.mode);
+  const [headline, subhead] = stageMessage(snapshot?.status ?? "dormant", snapshot?.mode, immunityVerified);
   const latest = events.at(-1);
   const activeActor = latest?.actor;
   const observedActors = new Set(events.map((event) => event.actor));
@@ -136,7 +139,7 @@ export function ImmuneArena({ snapshot, events, selection, onSelect, onCandidate
           )}
           {status === "promoted" && (
             <motion.div className="immunity-burst" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }}>
-              <SparkIcon size={16} /> {snapshot?.mode === "replay" ? "reference antibody saved" : "antibody persisted"}
+              <SparkIcon size={16} /> {immunityVerified ? "identical exploit blocked" : snapshot?.mode === "replay" ? "reference antibody saved" : "antibody persisted"}
             </motion.div>
           )}
         </div>

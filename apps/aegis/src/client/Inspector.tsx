@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { getActorMeta } from "./AgentBeing.js";
+import { MissionBriefing } from "./MissionBriefing.js";
 import type {
   CandidateDetail,
   ImmunityRecord,
@@ -74,6 +75,13 @@ function CandidateInspector({ candidate, mode }: { candidate: CandidateDetail; m
       <div className="inspector-kicker"><BranchIcon size={14} /> {provenance.evidenceLabel} · {provenance.commitLabel} {candidate.commitSha.slice(0, 7)}</div>
       <h2>{candidate.name}</h2>
       <p className="inspector-lead">{candidate.mutation.diagnosis}</p>
+      <div className="model-handoff">
+        <span><SparkIcon size={13} /><strong>GPT-5.6</strong><small>diagnosis + mutation plan</small></span>
+        <i>→</i>
+        <span><BranchIcon size={13} /><strong>Codex</strong><small>bounded code implementation</small></span>
+        <i>→</i>
+        <span><ShieldIcon size={13} /><strong>Guardian</strong><small>deterministic evaluation</small></span>
+      </div>
       <div className="candidate-score-hero">
         <div><strong>{Math.round(candidate.score.overall)}%</strong><span>{mode === "replay" ? "reference holdout integrity" : "holdout integrity"}</span></div>
         <div><strong className="positive">+{Math.round(candidate.score.baselineDelta)}</strong><span>points vs baseline</span></div>
@@ -158,6 +166,7 @@ export function Inspector({
         <span className="verified-pill"><ShieldIcon size={12} /> {provenance.evidenceLabel}</span>
       </div>
       <div className="inspector-scroll">
+        <MissionBriefing snapshot={snapshot} events={events} immunity={immunity} />
         <AnimatePresence mode="wait">
           {event ? <EventInspector event={event} mode={mode} />
             : selectedCandidate ? <CandidateInspector candidate={selectedCandidate} mode={mode} />
